@@ -1,0 +1,51 @@
+#Part 1:
+##############
+# Playbook
+# cat services.yml 
+#########################
+---
+-  hosts: "{{ hosts1 }}"
+   tasks:
+     - name: mesos-slave agent
+       command: systemctl is-active mesos-slave
+       ignore_errors: yes
+       register: mesos
+     - debug:
+         var: mesos.stdout
+     - name: checking consul agent service status
+       command: systemctl is-active consl-agent
+       register: consul
+     - debug:
+         var: consu.stdout
+     - name: checking localconroller
+       command: systemctl is-active localcontror
+       register: localcontroller
+     - debug:
+         var: localcontroller.stdout
+     - name: Checking cald
+       command: systemctl is-active cald
+       register: caldaemon
+     - debug:
+         var: caldaemon.stdout
+
+
+
+
+#Part 2:
+
+#@@@@ Root script save as "service_ansible.sh" # will add new hosts to the /etc/ansible/hosts file and run playbook
+
+#cat service_ansible.sh
+
+#!/bin/bash
+host=$1
+if [[ $(grep -wc $host /etc/ansible/hosts) -eq "0" ]]; then
+echo "***************Adding this to hostlist in /etc/ansible/hosts file , Please wait **********************************"
+echo "$host ansible_connect=ssh ansible_ssh_pass='XXXXXX' ansible_user=XXXXX" | tee -a /etc/ansible/hosts
+ansible-playbook services.yml --extra-vars "hosts1=$host"
+else
+ansible-playbook services.yml --extra-vars "hosts1=$host"
+fi
+
+
+
